@@ -1,9 +1,9 @@
 import streamlit as st
 from google import genai
 import os
+import time
 
 # Initialize the Gemini Client safely using Streamlit secrets
-# This configuration seamlessly passes credentials to the SDK
 if "GEMINI_API_KEY" in st.secrets:
     client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 else:
@@ -37,7 +37,7 @@ strings = {
         "login_btn": "लॉगिन करें",
         "welcome": "स्वागत है, छात्र!",
         "select_dept": "अपने इंजीनियरिंग विभाग का चयन करें",
-        "ask_placeholder": "जैसे, मुझे स्मार्ट ग्रिड पर सोर्स कोड के साथ 3 इनोवティブ प्रोजेक्ट आइडिया दें...",
+        "ask_placeholder": "जैसे, मुझे स्मार्ट ग्रिड पर सोर्स कोड के साथ 3 इनोवेटिव प्रोजेक्ट आइडिया दें...",
         "submit_btn": "प्रोजेक्ट गाइडेंस जेनरेट करें",
         "error_login": "गलत यूज़रनेम या पासवर्ड",
         "ai_response": "🤖 एआई गाइड सुझाव:"
@@ -74,7 +74,6 @@ if not st.session_state["logged_in"]:
     password = st.text_input(txt["pass"], type="password")
     
     if st.button(txt["login_btn"]):
-        # Simple mock credentials for testing
         if username == "student" and password == "project2026":
             st.session_state["logged_in"] = True
             st.rerun()
@@ -101,22 +100,13 @@ else:
     if st.button(txt["submit_btn"]):
         if user_query:
             with st.spinner("Processing your project details..."):
-                try:
-                    if st.button(txt["submit_btn"]):
-        if user_query:
-            with st.spinner("Processing your project details..."):
-                import time  # Import time for handling delays
-                
-                # Try connecting up to 3 times if the server is busy
                 for attempt in range(3):
                     try:
-                        # Construct system prompt keeping language and department in context
                         prompt_context = f"You are an expert engineering college professor and final year project guide. \
                         The student belongs to the {dept} department. \
                         Provide detailed project ideas, modules, technologies to use, and step-by-step execution guidance. \
                         Strictly reply in the language requested: {lang}."
                         
-                        # Call Gemini API
                         response = client.models.generate_content(
                             model='gemini-2.5-flash',
                             contents=f"{prompt_context}\n\nStudent Request: {user_query}"
@@ -125,12 +115,12 @@ else:
                         st.write("---")
                         st.subheader(txt["ai_response"])
                         st.write(response.text)
-                        break  # Exit the loop if successful!
+                        break  # Success, break the retry loop
                         
                     except Exception as e:
                         if "503" in str(e) and attempt < 2:
                             st.warning(f"Server is busy. Retrying in 2 seconds... (Attempt {attempt + 1}/3)")
-                            time.sleep(2)  # Wait 2 seconds before retrying
+                            time.sleep(2)
                         else:
                             st.error(f"Error connecting to AI Agent: {e}")
                             break
