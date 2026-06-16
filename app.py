@@ -2,13 +2,17 @@ import streamlit as st
 from google import genai
 import os
 
-# Initialize the Gemini Client
-# Best practice: Use st.secrets or set it directly for quick testing
-client = genai.Client(api_key="AQ.Ab8RN6KmIXRuPLDYwBA9dqJ3GU7KvIv79-nXgF9UEv3acejfHw")
+# Initialize the Gemini Client safely using Streamlit secrets
+# This configuration seamlessly passes credentials to the SDK
+if "GEMINI_API_KEY" in st.secrets:
+    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+else:
+    st.error("API Key missing! Please configure GEMINI_API_KEY in your Streamlit Secrets.")
 
 # Load external CSS
-with open("style.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+if os.path.exists("style.css"):
+    with open("style.css") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # Language Dictionary for Multi-language Support
 strings = {
@@ -33,7 +37,7 @@ strings = {
         "login_btn": "लॉगिन करें",
         "welcome": "स्वागत है, छात्र!",
         "select_dept": "अपने इंजीनियरिंग विभाग का चयन करें",
-        "ask_placeholder": "जैसे, मुझे स्मार्ट ग्रिड पर सोर्स कोड के साथ 3 इनोवेटिव प्रोजेक्ट आइडिया दें...",
+        "ask_placeholder": "जैसे, मुझे स्मार्ट ग्रिड पर सोर्स कोड के साथ 3 इनोवティブ प्रोजेक्ट आइडिया दें...",
         "submit_btn": "प्रोजेक्ट गाइडेंस जेनरेट करें",
         "error_login": "गलत यूज़रनेम या पासवर्ड",
         "ai_response": "🤖 एआई गाइड सुझाव:"
@@ -70,7 +74,7 @@ if not st.session_state["logged_in"]:
     password = st.text_input(txt["pass"], type="password")
     
     if st.button(txt["login_btn"]):
-        # Simple mock credentials for testing (Change these as needed!)
+        # Simple mock credentials for testing
         if username == "student" and password == "project2026":
             st.session_state["logged_in"] = True
             st.rerun()
