@@ -102,23 +102,37 @@ else:
         if user_query:
             with st.spinner("Processing your project details..."):
                 try:
-                    # Construct system prompt keeping language and department in context
-                    prompt_context = f"You are an expert engineering college professor and final year project guide. \
-                    The student belongs to the {dept} department. \
-                    Provide detailed project ideas, modules, technologies to use, and step-by-step execution guidance. \
-                    Strictly reply in the language requested: {lang}."
-                    
-                    # Call Gemini API
-                    response = client.models.generate_content(
-                        model='gemini-2.5-flash',
-                        contents=f"{prompt_context}\n\nStudent Request: {user_query}"
-                    )
-                    
-                    st.write("---")
-                    st.subheader(txt["ai_response"])
-                    st.write(response.text)
-                    
-                except Exception as e:
-                    st.error(f"Error connecting to AI Agent: {e}")
+                    if st.button(txt["submit_btn"]):
+        if user_query:
+            with st.spinner("Processing your project details..."):
+                import time  # Import time for handling delays
+                
+                # Try connecting up to 3 times if the server is busy
+                for attempt in range(3):
+                    try:
+                        # Construct system prompt keeping language and department in context
+                        prompt_context = f"You are an expert engineering college professor and final year project guide. \
+                        The student belongs to the {dept} department. \
+                        Provide detailed project ideas, modules, technologies to use, and step-by-step execution guidance. \
+                        Strictly reply in the language requested: {lang}."
+                        
+                        # Call Gemini API
+                        response = client.models.generate_content(
+                            model='gemini-2.5-flash',
+                            contents=f"{prompt_context}\n\nStudent Request: {user_query}"
+                        )
+                        
+                        st.write("---")
+                        st.subheader(txt["ai_response"])
+                        st.write(response.text)
+                        break  # Exit the loop if successful!
+                        
+                    except Exception as e:
+                        if "503" in str(e) and attempt < 2:
+                            st.warning(f"Server is busy. Retrying in 2 seconds... (Attempt {attempt + 1}/3)")
+                            time.sleep(2)  # Wait 2 seconds before retrying
+                        else:
+                            st.error(f"Error connecting to AI Agent: {e}")
+                            break
         else:
             st.warning("Please type a query or topic first!")
