@@ -1,0 +1,20 @@
+/* Main app container styling */
+.reportview-container {
+    background: #f5f7f8;
+}
+
+/* Custom card styling for the login block */
+.login-card {
+    background-color: #ffffff;
+    padding: 2.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+/* Department badges styling */
+.dept-header {
+    color: #1E3A8A;
+    font-family: 'Helvetica Neue', sans-serif;
+    font-weight: bold;
+}
